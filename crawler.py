@@ -55,8 +55,8 @@ class twitterListener(StreamListener):
             chkFlag = False
             return False
 
-        #Create a new text file every 10MB
-        if (f.tell() >= 10485760):
+        #Create a new text file every 50MB
+        if (f.tell() >= 50000000):
             print "last"
             f.close()
             chkFlag= True
