@@ -32,12 +32,10 @@ outputPath += str(filecnt)
 outputPath += '.txt'
 f = open(outputPath, 'a')
 chkFlag = True
+numTweetFlg = 0
+jsonData = []
 
-
-#twitter listener
-class twitterListener(StreamListener):
-    
-    def on_data(self, data):
+def parseAndStoreData(decoded):
         global f
         global filecnt
         global tweetcnt
@@ -50,7 +48,7 @@ class twitterListener(StreamListener):
             return False
 
         #Ends when files reach 5GB in total size
-        if (filecnt >= 500):
+        if (filecnt >= 25):
             print "filecnt"
             chkFlag = False
             return False
@@ -68,17 +66,20 @@ class twitterListener(StreamListener):
             outputPath += '.txt'
             f = open(outputPath, 'a')
 
-        
-        decoded = json.loads(data)  
-
-        username = unicode(decoded['user']['screen_name']).encode("ascii","ignore")  #gets username
+        username = unicode(decoded['user']['screen_name']).encode("ascii","ignore") #gets username
         userTweet = unicode(decoded['text']).encode("ascii","ignore") #gets tweet
         userTweet = userTweet.replace('\n', ' ').replace('\t', '').replace('\r', '') #replaces new lines
         userTweetTime = unicode(decoded['created_at']) #gets timestamp
         userLocation = unicode(decoded['user']['location']).encode("ascii","ignore") #gets location as per profile, not of the specific tweet
         userCoords = unicode(decoded['coordinates']).encode("ascii","ignore") #gets coordinates, will be 'None' if they have disable location services
-        userURLS = unicode(decoded['entities']['urls']).encode("ascii","ignore")#get URLS 
-        userData = "Date:" + userTweetTime +  " Coords:" + userCoords[36:-1] + " User:" + username + " Text:" + userTweet  
+        userURLS = unicode(decoded['entities']['urls']).encode("ascii","ignore") #get URLS 
+        userNumFollowers = unicode(decoded['user']['followers_count']).encode("ascii","ignore") #get number of followers the user has
+        userData = ("Date:" + userTweetTime +  
+                    " UserLocation:" + userLocation +
+                    " Coords:" + userCoords[36:-1] +
+                    " User:" + username + 
+                    " Text:" + userTweet + 
+                    " NumFollwers:" + userNumFollowers)
 
            
         userData += " Hashtags:"
@@ -130,6 +131,28 @@ class twitterListener(StreamListener):
         print userData
         f.write(userData)
 
+
+#twitter listener
+class twitterListener(StreamListener):
+    
+    def on_data(self, data):
+        global numTweetFlg
+        global jsonData
+        global chkFlag
+  
+        #Get json file that contains information
+        decoded = json.loads(data) 
+
+        #Checks if tweet is geo-tagged
+        if unicode(decoded['user']['geo_enabled']).encode("ascii","ignore") == "True" and unicode(decoded['coordinates']).encode("ascii","ignore") != "None":
+            numTweetFlg = numTweetFlg + 1
+            jsonData.append(decoded)
+
+        #Stops at specified number of tweets
+        if numTweetFlg == 100:
+            chkFlag = False
+            return False
+
         return True
 
     def on_error(self, status):
@@ -141,7 +164,7 @@ class twitterListener(StreamListener):
 
 
 if __name__ == '__main__':
-
+    
     wait_counter = 0
     while chkFlag != False:
         try:
@@ -151,7 +174,6 @@ if __name__ == '__main__':
             auth.set_access_token(access_token, access_token_secret)
             stream = Stream(auth, l)
 
-            #stream.filter(locations=[-121.32,32.64,-113.76,36.09], languages=["en"]) #filter tweets to be in the Southern Califnornia area
             stream.filter(locations=[-123.40,35.59,-66.79,48.25], languages=["en"]) 
         except Exception, e:
             print "Exception occured: "
@@ -162,5 +184,9 @@ if __name__ == '__main__':
                 time.sleep(waittime)
                 print "Going"
             pass
-    
+        
+    #Postprocessing here
+    for data in jsonData:
+        parseAndStoreData(data)
+
     f.close()
