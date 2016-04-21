@@ -48,7 +48,7 @@ def parseAndStoreData(decoded):
             return False
 
         #Ends when files reach 5GB in total size
-        if (filecnt >= 25):
+        if (filecnt >= 100):
             print "filecnt"
             chkFlag = False
             return False
