@@ -46,14 +46,12 @@ def parseAndStoreData(decoded):
         if tweetcnt >= numTweets and numTweets != 0:
             print "first"
             notDone = False
-            chkFlag = False
             return False
 
         #Ends when files reach 5GB in total size
         if (filecnt >= 100):
             print "filecnt"
             notDone = False
-            chkFlag = False
             return False
 
         #Create a new text file every 50MB
@@ -146,17 +144,17 @@ class twitterListener(StreamListener):
   
         #Get json file that contains information
         decoded = json.loads(data) 
-    
+
+       #Stops at specified number of tweets
+        if numTweetFlg == 5000:
+            chkFlag = False
+            numTweetFlg = 0;
+            return False    
         #Checks if tweet is geo-tagged
         if unicode(decoded['user']['geo_enabled']).encode("ascii","ignore") == "True" and unicode(decoded['coordinates']).encode("ascii","ignore") != "None":
             print "Tweet #: " + str(numTweetFlg)
             numTweetFlg = numTweetFlg + 1
             jsonData.append(decoded)
-
-        #Stops at specified number of tweets
-        if numTweetFlg == 5000:
-            chkFlag = False
-            return False
 
         return True
 
