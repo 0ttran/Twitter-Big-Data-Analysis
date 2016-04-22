@@ -174,8 +174,9 @@ if __name__ == '__main__':
     wait_counter = 0
     notDone = True
 
-    #Takes in 1000 tweets at a time and processes them and repeats
+    #Takes in 5000 tweets at a time and processes them and repeats
     while notDone:
+        chkFlag = True
         while chkFlag:
             try:
                 #Authentication and connection to twitter API
@@ -194,7 +195,7 @@ if __name__ == '__main__':
                     time.sleep(waittime)
                     print "Going"
                 pass
-            
+        
         #Postprocessing here
         for data in jsonData:
             parseAndStoreData(data)
