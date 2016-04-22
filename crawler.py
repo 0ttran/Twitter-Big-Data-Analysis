@@ -34,6 +34,7 @@ f = open(outputPath, 'a')
 chkFlag = True
 numTweetFlg = 0
 jsonData = []
+notDone = True
 
 def parseAndStoreData(decoded):
         global f
@@ -93,6 +94,7 @@ def parseAndStoreData(decoded):
             
         #get urls
         pageTitle = None
+        '''
         userData += " URL:"
         if userURLS != "[]":
             expanded_url = unicode(decoded['entities']['urls'][0]['expanded_url']).encode("ascii","ignore")
@@ -123,7 +125,7 @@ def parseAndStoreData(decoded):
             #pageTitle.replace('\n', '').replace('\r', ' ').replace('\t', '')
             pageTitle = re.sub('[^A-Za-z0-9]+', ' ', pageTitle)
             userData += pageTitle
-            
+        '''
             
         tweetcnt += 1
         print 'Tweet:', tweetcnt, ' F.size = ', f.tell(), ' on file:', filecnt 
@@ -142,14 +144,15 @@ class twitterListener(StreamListener):
   
         #Get json file that contains information
         decoded = json.loads(data) 
-
+    
         #Checks if tweet is geo-tagged
         if unicode(decoded['user']['geo_enabled']).encode("ascii","ignore") == "True" and unicode(decoded['coordinates']).encode("ascii","ignore") != "None":
+            print "Tweet #: " + str(numTweetFlg)
             numTweetFlg = numTweetFlg + 1
             jsonData.append(decoded)
 
         #Stops at specified number of tweets
-        if numTweetFlg == 100:
+        if numTweetFlg == 5000:
             chkFlag = False
             return False
 
@@ -157,6 +160,7 @@ class twitterListener(StreamListener):
 
     def on_error(self, status):
         print status
+        chkFlag = False
         if (status == 420):
             print "FOUND 420!!!"
             return False
@@ -166,27 +170,32 @@ class twitterListener(StreamListener):
 if __name__ == '__main__':
     
     wait_counter = 0
-    while chkFlag != False:
-        try:
-            #Authentication and connection to twitter API
-            l = twitterListener()
-            auth = OAuthHandler(consumer_key, consumer_secret)
-            auth.set_access_token(access_token, access_token_secret)
-            stream = Stream(auth, l)
+    notDone = True
 
-            stream.filter(locations=[-123.40,35.59,-66.79,48.25], languages=["en"]) 
-        except Exception, e:
-            print "Exception occured: "
-            print e
-            if (e == 420):
-                waittime = 60;
-                print "WAITING for " , waittime , " seconds..."
-                time.sleep(waittime)
-                print "Going"
-            pass
-        
-    #Postprocessing here
-    for data in jsonData:
-        parseAndStoreData(data)
+    #Takes in 1000 tweets at a time and processes them and repeats
+    while notDone:
+        while chkFlag:
+            try:
+                #Authentication and connection to twitter API
+                l = twitterListener()
+                auth = OAuthHandler(consumer_key, consumer_secret)
+                auth.set_access_token(access_token, access_token_secret)
+                stream = Stream(auth, l)
+
+                stream.filter(locations=[-123.40,35.59,-66.79,48.25], languages=["en"]) 
+            except Exception, e:
+                print "Exception occured: "
+                print e
+                if (e == 420):
+                    waittime = 60;
+                    print "WAITING for " , waittime , " seconds..."
+                    time.sleep(waittime)
+                    print "Going"
+                pass
+            
+        #Postprocessing here
+        for data in jsonData:
+            parseAndStoreData(data)
+        jsonData = []
 
     f.close()
