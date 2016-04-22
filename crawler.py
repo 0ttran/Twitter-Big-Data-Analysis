@@ -45,12 +45,14 @@ def parseAndStoreData(decoded):
         #checks num of tweet parameter
         if tweetcnt >= numTweets and numTweets != 0:
             print "first"
+            notDone = False
             chkFlag = False
             return False
 
         #Ends when files reach 5GB in total size
         if (filecnt >= 100):
             print "filecnt"
+            notDone = False
             chkFlag = False
             return False
 
