@@ -71,7 +71,6 @@ class twitterListener(StreamListener):
         
         decoded = json.loads(data)  
 
-
         username = unicode(decoded['user']['screen_name']).encode("ascii","ignore")  #gets username
         userTweet = unicode(decoded['text']).encode("ascii","ignore") #gets tweet
         userTweet = userTweet.replace('\n', ' ').replace('\t', '').replace('\r', '') #replaces new lines
@@ -79,7 +78,16 @@ class twitterListener(StreamListener):
         userLocation = unicode(decoded['user']['location']).encode("ascii","ignore") #gets location as per profile, not of the specific tweet
         userCoords = unicode(decoded['coordinates']).encode("ascii","ignore") #gets coordinates, will be 'None' if they have disable location services
         userURLS = unicode(decoded['entities']['urls']).encode("ascii","ignore")#get URLS 
-        userData = "Date:" + userTweetTime +  " Coords:" + userCoords[36:-1] + " User:" + username + " Text:" + userTweet  
+        userFollowers = unicode(decoded['user']['followers_count']).encode("ascii","ignore")
+        userFriends = unicode(decoded['user']['friends_count']).encode("ascii","ignore")
+        userPlace = unicode(decoded['place']['full_name']).encode("ascii","ignore")
+        userData = ("Date:" + userTweetTime +
+                   " Coords:" + userCoords[36:-1] + 
+                   " User:" + username + 
+                   " Text:" + userTweet + 
+                   " NumFollowers: " + userFollowers +
+                   " NumFriends: " + userFriends +
+                   " Place: " + userPlace) 
 
            
         userData += " Hashtags:"
