@@ -17,11 +17,11 @@ import re
 dirName = str(sys.argv[2]) #data path
 numTweets = int(sys.argv[1]) #num of tweets 
 
-#twitter credentials
-access_token = "794400235-KdRUNxANgh8hihIXEusBQ1KG56M69CnvbNqlVyZL"
-access_token_secret = "TeLtxZiP6rNG1NVFIZ4xlGXRCndr0plGpkBnGnwA2kkSA"
-consumer_key = "6qkJiouDjxgANzJHQ5bLZMyiI"
-consumer_secret = "gWRU7UlKAKJvUxy5HHPYotp1KrDewyHxpQkyCC55lqCsYQvCV1"
+#twitter credentials enter your credentials here
+access_token = ""
+access_token_secret = ""
+consumer_key = ""
+consumer_secret = ""
 
 tweetcnt = 0
 filecnt = 0
@@ -50,7 +50,7 @@ class twitterListener(StreamListener):
             return False
 
         #Ends when files reach 5GB in total size
-        if (filecnt >= 500):
+        if (filecnt >= 100):
             print "filecnt"
             chkFlag = False
             return False
@@ -100,9 +100,9 @@ class twitterListener(StreamListener):
                 userData += userHashtags + " "
             
         tweetcnt += 1
-        print 'Tweet:', tweetcnt, ' F.size = ', f.tell(), ' on file:', filecnt 
+        #print 'Tweet:', tweetcnt, ' F.size = ', f.tell(), ' on file:', filecnt 
         userData += "\n"
-        print userData
+        #print userData
         f.write(userData)
 
         return True
@@ -126,8 +126,8 @@ if __name__ == '__main__':
             auth.set_access_token(access_token, access_token_secret)
             stream = Stream(auth, l)
 
-            #stream.filter(locations=[-121.32,32.64,-113.76,36.09], languages=["en"]) #filter tweets to be in the Southern Califnornia area
-            stream.filter(locations=[-123.40,35.59,-66.79,48.25], languages=["en"]) 
+            #filter tweets to be in a large portion of North America
+            stream.filter(locations=[-127.88,24.46,-54.58,57.78], languages=["en"]) 
         except Exception, e:
             print "Exception occured: "
             print e
