@@ -26,22 +26,22 @@
         var address = stringVal;
         geocoder.geocode({'address': address}, function(results, status) {
 		if (status === google.maps.GeocoderStatus.OK) {
-			resultsMap.setCenter(results[0].geometry.location);
-			var marker = new google.maps.Marker({
-				map: resultsMap,
-				position: results[0].geometry.location
+				resultsMap.setCenter(results[0].geometry.location);
+				var marker = new google.maps.Marker({
+					map: resultsMap,
+					position: results[0].geometry.location
+				});
+
+			var contentString = '<body>{{ mostPopularHash }} <br>{{ mostPopularHash2 }} <br>{{ mostPopularHash3 }} </body>';
+
+			var infowindow = new google.maps.InfoWindow({
+			content: contentString 
+			});
+			google.maps.event.addListener(marker,'click', function() {
+				 infowindow.open(resultsMap, marker);
 			});
 
-		var contentString = '<body>{{ mostPopularHash }} <br>{{ mostPopularHash2 }} <br>{{ mostPopularHash3 }} </body>';
-
-		var infowindow = new google.maps.InfoWindow({
-		content: contentString 
-		});
-		google.maps.event.addListener(marker,'click', function() {
-			 infowindow.open(resultsMap, marker);
-		});
-
-		infowindow.open(resultsMap,marker);
+			infowindow.open(resultsMap,marker);
 		} else {
 		alert('Geocode was not successful for the following reason: ' + status);
 		}
