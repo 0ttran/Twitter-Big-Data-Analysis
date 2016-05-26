@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static 'res/css/styles.css' %}">
+	<script src="http://maps.googleapis.com/maps/api/js"></script>
+
+
+	<script>
+
+	//Initialize map
+    function initMap() {
+		var map = new google.maps.Map(document.getElementById('googleMap'), {
+			zoom: 8,
+			center: {lat: -34.397, lng: 150.644}
+		});
+		var geocoder = new google.maps.Geocoder();
+		var stringVal = "{{origString}}"
+		geocodeAddress(geocoder, map, stringVal);
+    }
+    
+    //Pass in text of city, sets location on map
+    function geocodeAddress(geocoder, resultsMap,stringVal) {
+        //var address = document.getElementById('search').value;
+        var address = stringVal;
+        geocoder.geocode({'address': address}, function(results, status) {
+		if (status === google.maps.GeocoderStatus.OK) {
+			resultsMap.setCenter(results[0].geometry.location);
+			var marker = new google.maps.Marker({
+				map: resultsMap,
+				position: results[0].geometry.location
+			});
+
+		var contentString = '<body>{{ mostPopularHash }} <br>{{ mostPopularHash2 }} <br>{{ mostPopularHash3 }} </body>';
+
+		var infowindow = new google.maps.InfoWindow({
+		content: contentString 
+		});
+		google.maps.event.addListener(marker,'click', function() {
+			 infowindow.open(resultsMap, marker);
+		});
+
+		infowindow.open(resultsMap,marker);
+		} else {
+		alert('Geocode was not successful for the following reason: ' + status);
+		}
+		});
+    }
+	
+	</script>
+</head>
+
+<!Main Interface>
+<body>
+	<!Title>
+	<div style="margin-left:440px;"><img src="https://g.twimg.com/Twitter_logo_blue.png" style="width:50px;height:50px;" align="left"> </div>
+	<div style="margin:0 auto;font-family:Impact;margin-right:420px">
+		<h1 style="text-align:center;color:#55acee;"><font size="20">Twitter Trends Search</font></h1>
+	</div>
+
+	<!Google Maps output>
+	<script>
+	initMap();
+	</script>
+	<div id="googleMap" style="width:500px;height:380px;margin:0 auto;"></div>
+
+	<!Search bar>
+	<form method="get">
+		<script type="text/javascript">initMap();</script>
+		<div class="box" style="margin:0 auto;margin-top:2cm">
+		  <div class="container-1" style="margin:0 auto;">
+		      <span class="icon"><i class="fa fa-search"></i></span>
+		      <input type="text" name="search" id="search" placeholder="Search Cities..."/>
+		  </div>
+		</div>
+	</form>
+
+	<!About>
+	<div style="clear:both;margin:0;font-family:Impact;margin-top:200px;">
+	<h2 style="text-align:center;color:#55acee;"><font size="20">About</font></h2>
+	<p style="color:white;margin-left:200px; margin-right:200px;"><font size="14">Search for the most popular hashtags all around North America. This search engine will take in city name inputs, e.g. Las Vegas, New York, etc. and output the top three most popular hastags for the city. All data is preprocessed and is from April 20th to May 5th.</font></p>
+	</div>
+
+</body>
+</html>
